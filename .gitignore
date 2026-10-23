@@ -1,0 +1,4 @@
+.build/
+.swiftpm/
+MD Widgets.app/
+.DS_Store
