@@ -17,9 +17,19 @@
 - **Живое обновление.** Изменения, сделанные в Obsidian, появляются в виджете в течение пары секунд.
 - **Дерево заметок.** Выберите папку хранилища, и её заметки появятся в меню деревом. Клик показывает или скрывает виджет.
 
-## Требования
+## Установка
 
-- macOS 14 Sonoma или новее.
+Скачайте `MD-Widgets-<версия>.dmg` со страницы [Releases](https://github.com/utb404/md-notes-widget/releases) и перетащите приложение в «Программы». Нужен Mac на Apple Silicon с macOS 14 Sonoma или новее.
+
+Сборка не подписана сертификатом Apple, поэтому при первом запуске macOS её заблокирует. Чтобы разрешить запуск, откройте «Системные настройки → Конфиденциальность и безопасность» и нажмите «Всё равно открыть». Или выполните в терминале:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/MD Widgets.app"
+```
+
+## Требования для сборки
+
+- Mac на Apple Silicon, macOS 14 Sonoma или новее.
 - Swift 5.9+: хватит Xcode Command Line Tools (`xcode-select --install`), полный Xcode не нужен.
 
 ## Сборка
@@ -32,6 +42,16 @@ open "MD Widgets.app"
 ```
 
 `build.sh` собирает релизную версию, прогоняет self-test парсера Markdown и упаковывает `MD Widgets.app` с ad-hoc подписью. Приложение можно перенести в «Программы».
+
+`./dmg.sh` делает то же самое и упаковывает приложение в `MD-Widgets-<версия>.dmg` (версия задаётся переменной `VERSION`, по умолчанию `1.0`).
+
+### Релиз
+
+```bash
+git tag v1.1 && git push origin v1.1
+```
+
+GitHub Actions соберёт DMG и опубликует его в Releases. Если в секретах репозитория есть сертификат Developer ID и ключ App Store Connect API, DMG будет подписан и нотаризован (список секретов в `.github/workflows/release.yml`).
 
 ## Использование
 
@@ -60,6 +80,8 @@ open "MD Widgets.app"
 | `Sources/MDWidgets/main.swift` | Окна-виджеты (`NSPanel` + `NSVisualEffectView`), меню, дерево папки, сохранение настроек |
 | `Sources/MDWidgets/Markdown.swift` | Разбор Markdown по строкам и отрисовка в SwiftUI, self-test (`--selftest`) |
 | `build.sh` | Сборка и упаковка `.app` |
+| `dmg.sh` | Упаковка в DMG, подпись и нотаризация (если заданы ключи) |
+| `.github/workflows/release.yml` | Публикация DMG в Releases по тегу `v*` |
 | `Resources/AppIcon.icns` | Иконка приложения (собрана из `design/icon/AppIcon.svg`) |
 | `design/` | Логотип: знак в SVG (чёрный, белый, фирменный `#3D5AD9`) и исходник иконки |
 
