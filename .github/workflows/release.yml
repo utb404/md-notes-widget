@@ -59,6 +59,7 @@ jobs:
           echo "mktemp dir: $B"; try "mktemp dir, no symlink" "$B"
           C="$RUNNER_TEMP/c"; mkdir -p "$C"; echo hi > "$C/x.txt"; ln -s /tmp "$C/link"
           try "runner_temp + symlink to /tmp" "$C"
+          echo "=== relative output path"; (cd "$RUNNER_TEMP" && hdiutil create -volname T -srcfolder "$A" -format UDZO -ov rel.dmg 2>&1 | tail -3)
 
       - name: Build DMG
         run: |

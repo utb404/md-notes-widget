@@ -11,13 +11,13 @@ cd "$(dirname "$0")"
 export VERSION=${VERSION:-1.0}
 ./build.sh
 
-DMG="MD-Widgets-$VERSION.dmg"
+DMG="$PWD/MD-Widgets-$VERSION.dmg"  # hdiutil on macOS 27 fails on a relative output path
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 cp -R "MD Widgets.app" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 rm -f "$DMG"
-hdiutil create -volname "MD Widgets" -srcfolder "$STAGE" -format UDZO -ov "$DMG"
+hdiutil create -verbose -volname "MD Widgets" -srcfolder "$STAGE" -format UDZO -ov "$DMG"
 
 if [[ -n "${SIGN_IDENTITY:-}" ]]; then
     codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG"
