@@ -49,18 +49,6 @@ jobs:
           echo "$NOTARY_KEY_P8" | base64 --decode > "$RUNNER_TEMP/notary.p8"
           echo "NOTARY_KEY=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
 
-      - name: Diagnose disk image tools  # TEMP
-        continue-on-error: true
-        run: |
-          try() { echo "=== $1"; hdiutil create -verbose -volname T -srcfolder "$2" -format UDZO -ov "$RUNNER_TEMP/t.dmg" 2>&1 | grep -vE 'useRealIDs|useEffectiveIDs|processKernelRequest' | tail -25; }
-          A="$RUNNER_TEMP/a"; mkdir -p "$A"; echo hi > "$A/x.txt"; ln -s /Applications "$A/Applications"
-          try "runner_temp + /Applications symlink" "$A"
-          B=$(mktemp -d); echo hi > "$B/x.txt"
-          echo "mktemp dir: $B"; try "mktemp dir, no symlink" "$B"
-          C="$RUNNER_TEMP/c"; mkdir -p "$C"; echo hi > "$C/x.txt"; ln -s /tmp "$C/link"
-          try "runner_temp + symlink to /tmp" "$C"
-          echo "=== relative output path"; (cd "$RUNNER_TEMP" && hdiutil create -volname T -srcfolder "$A" -format UDZO -ov rel.dmg 2>&1 | tail -3)
-
       - name: Build DMG
         run: |
           if [[ "$GITHUB_REF_TYPE" == tag ]]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION=0.0; fi
