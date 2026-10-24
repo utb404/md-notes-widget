@@ -52,11 +52,13 @@ jobs:
       - name: Diagnose disk image tools  # TEMP
         continue-on-error: true
         run: |
-          sw_vers; xcodebuild -version
-          diskutil image 2>&1 | head -40 || true
-          diskutil image create 2>&1 | head -60 || true
-          mkdir -p "$RUNNER_TEMP/src" && echo hi > "$RUNNER_TEMP/src/a.txt"
-          hdiutil create -verbose -volname T -srcfolder "$RUNNER_TEMP/src" -format UDZO -ov "$RUNNER_TEMP/t.dmg" 2>&1 | tail -40 || true
+          try() { echo "=== $1"; hdiutil create -verbose -volname T -srcfolder "$2" -format UDZO -ov "$RUNNER_TEMP/t.dmg" 2>&1 | grep -vE 'useRealIDs|useEffectiveIDs|processKernelRequest' | tail -25; }
+          A="$RUNNER_TEMP/a"; mkdir -p "$A"; echo hi > "$A/x.txt"; ln -s /Applications "$A/Applications"
+          try "runner_temp + /Applications symlink" "$A"
+          B=$(mktemp -d); echo hi > "$B/x.txt"
+          echo "mktemp dir: $B"; try "mktemp dir, no symlink" "$B"
+          C="$RUNNER_TEMP/c"; mkdir -p "$C"; echo hi > "$C/x.txt"; ln -s /tmp "$C/link"
+          try "runner_temp + symlink to /tmp" "$C"
 
       - name: Build DMG
         run: |
