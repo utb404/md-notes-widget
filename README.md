@@ -4,6 +4,8 @@
 
 *A tiny native macOS app that pins Obsidian Markdown notes to your desktop as translucent, draggable widgets.*
 
+![Виджеты заметок на рабочем столе](docs/widgets.png)
+
 ## Возможности
 
 - **Виджеты на рабочем столе.** Лежат над иконками, но под обычными окнами, и видны на всех рабочих столах (Spaces).
