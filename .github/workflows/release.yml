@@ -54,6 +54,17 @@ jobs:
           if [[ "$GITHUB_REF_TYPE" == tag ]]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION=0.0; fi
           VERSION="$VERSION" ./dmg.sh
 
+      - name: Diagnose DMG creation  # TEMP
+        if: always()
+        run: |
+          diskutil image create from 2>&1 | head -60 || true
+          S=$(mktemp -d); cp -R "MD Widgets.app" "$S/"; ln -s /Applications "$S/Applications"
+          for i in 1 2; do echo "=== hdiutil plain #$i"; hdiutil create -volname "MD Widgets" -srcfolder "$S" -format UDZO -ov "$RUNNER_TEMP/p$i.dmg" 2>&1 | tail -3; echo "exit ${PIPESTATUS[0]}"; done
+          echo "=== hdiutil verbose"; hdiutil create -verbose -volname "MD Widgets" -srcfolder "$S" -format UDZO -ov "$RUNNER_TEMP/v.dmg" >"$RUNNER_TEMP/v.log" 2>&1; echo "exit $?"; grep -iE 'error|fail|created' "$RUNNER_TEMP/v.log" | tail -5
+          echo "=== hdiutil plain, srcfolder without symlink"; S2=$(mktemp -d); cp -R "MD Widgets.app" "$S2/"; hdiutil create -volname "MD Widgets" -srcfolder "$S2" -format UDZO -ov "$RUNNER_TEMP/n.dmg" 2>&1 | tail -3; echo "exit ${PIPESTATUS[0]}"
+          echo "=== diskutil image create from"; diskutil image create from --volumeName "MD Widgets" --format UDZO "$S" "$RUNNER_TEMP/d.dmg" 2>&1 | tail -10; echo "exit ${PIPESTATUS[0]}"
+          ls -la "$RUNNER_TEMP"/*.dmg || true
+
       - name: Publish release
         if: github.ref_type == 'tag'
         env:
