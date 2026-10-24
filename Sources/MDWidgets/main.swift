@@ -75,7 +75,7 @@ final class AppDelegate:NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let folder = menu as? FolderMenu { return fillTree(folder) }
         if let vault = UserDefaults.standard.string(forKey: "vault") {
             let item = menu.addItem(withTitle: name(vault), action: nil, keyEquivalent: "")
-            item.image = NSImage(systemSymbolName: "folder", accessibilityDescription: nil)
+            setIcon(item, "folder")
             item.submenu = FolderMenu(URL(fileURLWithPath: vault), delegate: self)
             add(menu, "Сменить папку…", #selector(chooseVault))
         } else {
@@ -136,10 +136,10 @@ final class AppDelegate:NSObject, NSApplicationDelegate, NSMenuDelegate {
             let item = NSMenuItem(title: name(entry.url.path), action: nil, keyEquivalent: "")
             if entry.isDir {
                 item.title = entry.url.lastPathComponent
-                item.image = NSImage(systemSymbolName: "folder", accessibilityDescription: nil)
+                setIcon(item, "folder")
                 item.submenu = FolderMenu(entry.url, delegate: self)
             } else {
-                item.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
+                setIcon(item, "doc.text")
                 item.action = #selector(toggleFile(_:))
                 item.target = self
                 item.representedObject = entry.url.path
@@ -256,6 +256,12 @@ final class AppDelegate:NSObject, NSApplicationDelegate, NSMenuDelegate {
         reload()
         let timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { _ in MainActor.assumeIsolated { reload() } }
         return (panel, timer)
+    }
+
+    private func setIcon(_ item: NSMenuItem, _ symbol: String) {
+        item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        // macOS 27 hides menu item images unless asked to show them.
+        if #available(macOS 27, *) { item.preferredImageVisibility = .visible }
     }
 
     private func frameName(_ path: String) -> String { "note:" + path }
