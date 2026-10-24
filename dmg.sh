@@ -17,7 +17,12 @@ trap 'rm -rf "$STAGE"' EXIT
 cp -R "MD Widgets.app" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 rm -f "$DMG"
-hdiutil create -volname "MD Widgets" -srcfolder "$STAGE" -format UDZO -ov "$DMG"
+# hdiutil create is deprecated on macOS 27 and fails intermittently there
+if diskutil image create from --help >/dev/null 2>&1; then
+    diskutil image create from --format UDZO --volumeName "MD Widgets" "$STAGE" "$PWD/$DMG"
+else
+    hdiutil create -volname "MD Widgets" -srcfolder "$STAGE" -format UDZO -ov "$DMG"
+fi
 
 if [[ -n "${SIGN_IDENTITY:-}" ]]; then
     codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG"
