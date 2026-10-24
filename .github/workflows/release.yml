@@ -1,4 +1,5 @@
 # Push a tag like v1.2 to build the DMG and publish it as a GitHub Release.
+# Pull requests build the DMG too, without publishing.
 # Signing and notarization turn on when these repository secrets exist:
 #   MACOS_CERT_P12        base64 of the "Developer ID Application" .p12
 #   MACOS_CERT_PASSWORD   its password
@@ -9,6 +10,7 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  pull_request:
 
 permissions:
   contents: write
@@ -47,10 +49,22 @@ jobs:
           echo "$NOTARY_KEY_P8" | base64 --decode > "$RUNNER_TEMP/notary.p8"
           echo "NOTARY_KEY=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
 
+      - name: Diagnose disk image tools  # TEMP
+        continue-on-error: true
+        run: |
+          sw_vers; xcodebuild -version
+          diskutil image 2>&1 | head -40 || true
+          diskutil image create 2>&1 | head -60 || true
+          mkdir -p "$RUNNER_TEMP/src" && echo hi > "$RUNNER_TEMP/src/a.txt"
+          hdiutil create -verbose -volname T -srcfolder "$RUNNER_TEMP/src" -format UDZO -ov "$RUNNER_TEMP/t.dmg" 2>&1 | tail -40 || true
+
       - name: Build DMG
-        run: VERSION="${GITHUB_REF_NAME#v}" ./dmg.sh
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION=0.0; fi
+          VERSION="$VERSION" ./dmg.sh
 
       - name: Publish release
+        if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" "MD-Widgets-${GITHUB_REF_NAME#v}.dmg" --title "MD Widgets ${GITHUB_REF_NAME#v}" --generate-notes
