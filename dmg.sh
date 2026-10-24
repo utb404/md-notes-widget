@@ -11,13 +11,18 @@ cd "$(dirname "$0")"
 export VERSION=${VERSION:-1.0}
 ./build.sh
 
-DMG="$PWD/MD-Widgets-$VERSION.dmg"  # relative output path made hdiutil fail with ENOENT on macOS 27
+DMG="MD-Widgets-$VERSION.dmg"
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 cp -R "MD Widgets.app" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 rm -f "$DMG"
-hdiutil create -volname "MD Widgets" -srcfolder "$STAGE" -format UDZO -ov "$DMG"
+# hdiutil create is deprecated on macOS 27 and fails intermittently there
+if diskutil image create from --help >/dev/null 2>&1; then
+    diskutil image create from --format UDZO --volumeName "MD Widgets" "$STAGE" "$PWD/$DMG"
+else
+    hdiutil create -volname "MD Widgets" -srcfolder "$STAGE" -format UDZO -ov "$DMG"
+fi
 
 if [[ -n "${SIGN_IDENTITY:-}" ]]; then
     codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG"
@@ -33,4 +38,4 @@ if [[ -n "${SIGN_IDENTITY:-}" ]]; then
         xcrun stapler staple "$DMG"
     fi
 fi
-echo "Packed $DMG"
+echo "Packed $PWD/$DMG"
