@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: macos-15
+    runs-on: xcode-27  # code uses the macOS 27 SDK; macos-15/26 images ship older Xcode
     env:
       MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
       MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
@@ -23,7 +23,7 @@ jobs:
       NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
       NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # build number is the commit count
 
