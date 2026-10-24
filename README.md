@@ -61,7 +61,7 @@ open "MD Widgets.app"
 | `Sources/MDWidgets/Markdown.swift` | Разбор Markdown по строкам и отрисовка в SwiftUI, self-test (`--selftest`) |
 | `build.sh` | Сборка и упаковка `.app` |
 | `Resources/AppIcon.icns` | Иконка приложения (собрана из `design/icon/AppIcon.svg`) |
-| `design/` | Логотип: знак в SVG (чёрный, белый, фирменный `#3D5AD9`), концепты и исходник иконки |
+| `design/` | Логотип: знак в SVG (чёрный, белый, фирменный `#3D5AD9`) и исходник иконки |
 
 ## Лицензия
 
