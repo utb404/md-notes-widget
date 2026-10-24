@@ -1,0 +1,56 @@
+# Push a tag like v1.2 to build the DMG and publish it as a GitHub Release.
+# Signing and notarization turn on when these repository secrets exist:
+#   MACOS_CERT_P12        base64 of the "Developer ID Application" .p12
+#   MACOS_CERT_PASSWORD   its password
+#   NOTARY_KEY_P8         base64 of the App Store Connect API key (.p8)
+#   NOTARY_KEY_ID, NOTARY_ISSUER
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    env:
+      MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+      MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+      NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8 }}
+      NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+      NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # build number is the commit count
+
+      - name: Import signing certificate
+        if: env.MACOS_CERT_P12 != ''
+        run: |
+          KC="$RUNNER_TEMP/signing.keychain-db"
+          KC_PW=$(openssl rand -base64 24)
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KC_PW" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KC_PW" "$KC"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KC_PW" "$KC"
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          echo "SIGN_IDENTITY=Developer ID Application" >> "$GITHUB_ENV"
+
+      - name: Prepare notarization key
+        if: env.MACOS_CERT_P12 != '' && env.NOTARY_KEY_P8 != ''
+        run: |
+          echo "$NOTARY_KEY_P8" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          echo "NOTARY_KEY=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
+
+      - name: Build DMG
+        run: VERSION="${GITHUB_REF_NAME#v}" ./dmg.sh
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "MD-Widgets-${GITHUB_REF_NAME#v}.dmg" --title "MD Widgets ${GITHUB_REF_NAME#v}" --generate-notes

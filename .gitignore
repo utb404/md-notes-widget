@@ -4,3 +4,4 @@ MD Widgets.app/
 .DS_Store
 design/**/renders/
 design/icon/AppIcon.iconset/
+*.dmg
