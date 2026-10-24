@@ -1,4 +1,6 @@
-# MD Widgets
+<p align="center"><img src="docs/icon.png" width="128" alt="MD Widgets icon"></p>
+
+<h1 align="center">MD Widgets</h1>
 
 Нативное macOS-приложение, которое показывает заметки Obsidian (`.md`) как полупрозрачные виджеты на рабочем столе.
 
@@ -58,6 +60,8 @@ open "MD Widgets.app"
 | `Sources/MDWidgets/main.swift` | Окна-виджеты (`NSPanel` + `NSVisualEffectView`), меню, дерево папки, сохранение настроек |
 | `Sources/MDWidgets/Markdown.swift` | Разбор Markdown по строкам и отрисовка в SwiftUI, self-test (`--selftest`) |
 | `build.sh` | Сборка и упаковка `.app` |
+| `Resources/AppIcon.icns` | Иконка приложения (собрана из `design/icon/AppIcon.svg`) |
+| `design/` | Логотип: знак в SVG (чёрный, белый, фирменный `#3D5AD9`), концепты и исходник иконки |
 
 ## Лицензия
 

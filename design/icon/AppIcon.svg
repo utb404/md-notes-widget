@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>MD Widgets app icon</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3CC6C9"/>
+      <stop offset="1" stop-color="#3D5AD9"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0b1a40" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <!-- macOS icon grid: 824px body inside the 1024 canvas -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)" filter="url(#shadow)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#sheen)"/>
+  <g transform="translate(512 504) scale(2.8) translate(-128 -128)" fill="#fff">
+    <path fill-opacity="0.55" fill-rule="evenodd" d="M68 36H148A32 32 0 0 1 180 68V148A32 32 0 0 1 148 180H68A32 32 0 0 1 36 148V68A32 32 0 0 1 68 36ZM108 76H180V148A32 32 0 0 1 148 180H76V108A32 32 0 0 1 108 76Z"/>
+    <path fill-opacity="0.96" fill-rule="evenodd" d="M108 76H188A32 32 0 0 1 220 108V188A32 32 0 0 1 188 220H108A32 32 0 0 1 76 188V108A32 32 0 0 1 108 76ZM108 76H180V148A32 32 0 0 1 148 180H76V108A32 32 0 0 1 108 76Z"/>
+    <path fill-opacity="0.2" d="M108 76H180V148A32 32 0 0 1 148 180H76V108A32 32 0 0 1 108 76Z"/>
+    <rect x="98" y="100" width="44" height="18" rx="9"/>
+    <rect x="98" y="130" width="62" height="10" rx="5"/>
+    <rect x="98" y="150" width="42" height="10" rx="5"/>
+  </g>
+</svg>
